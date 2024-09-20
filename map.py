@@ -1,6 +1,14 @@
 import folium
 from folium import TileLayer
+from folium.plugins.treelayercontrol import TreeLayerControl
+from folium.features import Marker
 from folium.plugins import MousePosition
+import xml.etree.ElementTree as ET
+import re
+
+root = ET.parse('XML game data/settlements.xml').getroot()
+root_ru = ET.parse('XML game data/std_settlements_xml_rus.xml').getroot()
+lang = 'ru'  # Выбираем язык для данных 'ru' для русского, любое другое значение для анг
 
 # Границы карты
 map_min_lat = -112
@@ -42,11 +50,21 @@ village_group = folium.FeatureGroup(name='Деревни', show=False).add_to(ma
 other_group = folium.FeatureGroup(name='Другое', show=False).add_to(map_obj)
 folium.LayerControl().add_to(map_obj)
 
+# Определение списка фракций
+factions = set()
+for settlements in root:
+    if 'owner' in settlements.attrib:
+        factions.add(settlements.attrib['owner'].split('.')[1].split('_', 1)[1].rsplit('_', 1)[0])
+
 # Создание словаря
 dict = {"label" : "Кальрадия",
         "select_all_checkbox": "Un/select all",
         "children": []
         }
+for faction in factions:
+    dict["children"].append({"label": faction, "select_all_checkbox": True, "children": []})
+print(dict)
 
+TreeLayerControl(overlay_tree=dict).add_to(map_obj)
 # Сохраняем карту в HTML файл
 map_obj.save('docs/map.html')
