@@ -25,7 +25,6 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_7426305bbc92ef3877c46086c24fc75a {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -39,14 +38,11 @@
 <body>
     
     
-            <div class="folium-map" id="map_7426305bbc92ef3877c46086c24fc75a" ></div>
         
 </body>
 <script>
     
     
-            var map_7426305bbc92ef3877c46086c24fc75a = L.map(
-                "map_7426305bbc92ef3877c46086c24fc75a",
                 {
                     center: [-56.0, 76.0],
                     crs: L.CRS.Simple,
@@ -61,53 +57,36 @@
 
         
     
-            var tile_layer_d371063e612df6b2e0c4ec352d87188e = L.tileLayer(
-                "https://raw.githubusercontent.com/Idzanak/M-B/main/tileset/{z}/{x}/{y}.png",
                 {"attribution": "M\u0026B Map tileset", "detectRetina": false, "maxZoom": 7, "minZoom": 3, "noWrap": true, "opacity": 1, "subdomains": "abc", "tms": false}
             );
         
     
-            tile_layer_d371063e612df6b2e0c4ec352d87188e.addTo(map_7426305bbc92ef3877c46086c24fc75a);
         
     
-            var feature_group_dfb7a35d78bb8f856cd37c8df63c3cf8 = L.featureGroup(
                 {}
             );
         
     
-            feature_group_dfb7a35d78bb8f856cd37c8df63c3cf8.addTo(map_7426305bbc92ef3877c46086c24fc75a);
         
     
-            var feature_group_52658a2eec1926d58e85ae29883960f8 = L.featureGroup(
                 {}
             );
         
     
-            var feature_group_3fb3ec148cc8bb4be8e6d9b8d533b5bc = L.featureGroup(
                 {}
             );
         
     
-            var feature_group_2a6243991e1f395c1ecb0acea68fd5cc = L.featureGroup(
                 {}
             );
         
     
-            var layer_control_0329474e3a3632b327d2684112ded661_layers = {
                 base_layers : {
                 },
                 overlays :  {
-                    "\u0413\u043e\u0440\u043e\u0434\u0430" : feature_group_dfb7a35d78bb8f856cd37c8df63c3cf8,
-                    "\u0417\u0430\u043c\u043a\u0438" : feature_group_52658a2eec1926d58e85ae29883960f8,
-                    "\u0414\u0435\u0440\u0435\u0432\u043d\u0438" : feature_group_3fb3ec148cc8bb4be8e6d9b8d533b5bc,
-                    "\u0414\u0440\u0443\u0433\u043e\u0435" : feature_group_2a6243991e1f395c1ecb0acea68fd5cc,
                 },
             };
-            let layer_control_0329474e3a3632b327d2684112ded661 = L.control.layers(
-                layer_control_0329474e3a3632b327d2684112ded661_layers.base_layers,
-                layer_control_0329474e3a3632b327d2684112ded661_layers.overlays,
                 {"autoZIndex": true, "collapsed": true, "position": "topright"}
-            ).addTo(map_7426305bbc92ef3877c46086c24fc75a);
 
         
 </script>
