@@ -1,4 +1,6 @@
-#test
-a = 'hello'
-a2 = 'sdasd516'
-#how to
+# Создание словаря
+dict = {"label" : "Кальрадия",
+        "select_all_checkbox": "Un/select all",
+        "children": []
+        }
+print(dict)
