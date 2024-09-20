@@ -25,7 +25,7 @@ def scale_coordinates(lat, lon):
 map_obj = folium.Map(location=[map_min_lat/2, map_max_lon/2], zoom_start=3, tiles=None, crs='Simple', min_lon=map_min_lon, max_lon=map_max_lon, min_lat=map_min_lat, max_lat=map_max_lat, height="100%", width="100%", max_bounds=True)
 
 TileLayer(
-    tiles='tileset/{z}/{x}/{y}.png',  # URL или путь к вашему фоновому изображению
+    tiles='https://raw.githubusercontent.com/Idzanak/M-B/main/tileset/{z}/{x}/{y}.png',  # URL или путь к вашему фоновому изображению
     attr='M&B Map tileset',  # Атрибуция (может быть пустой для вашего проекта)
     name='M&B Map',
     overlay=False,
@@ -49,4 +49,4 @@ dict = {"label" : "Кальрадия",
         }
 
 # Сохраняем карту в HTML файл
-map_obj.save('docs/map.html')
+map_obj.save('map.html')
