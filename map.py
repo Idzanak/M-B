@@ -49,4 +49,4 @@ dict = {"label" : "Кальрадия",
         }
 
 # Сохраняем карту в HTML файл
-map_obj.save('map.html')
+map_obj.save('docs/map.html')
