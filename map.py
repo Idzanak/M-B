@@ -57,13 +57,21 @@ for settlements in root:
         factions.add(settlements.attrib['owner'].split('.')[1].split('_', 1)[1].rsplit('_', 1)[0])
 
 # Создание словаря
+
 dict = {"label" : "Кальрадия",
         "select_all_checkbox": "Un/select all",
         "children": []
         }
 for faction in factions:
-    dict["children"].append({"label": faction, "select_all_checkbox": True, "children": []})
-print(dict)
+    for location in root:
+        if 'owner' in location.attrib:
+            location_temp_data = {}
+            if faction == location.attrib['owner'].split('.')[1].split('_', 1)[1].rsplit('_', 1)[0]:
+                location_temp_data["label"] = location.attrib['id']
+        dict["children"].append({"label": faction, "select_all_checkbox": True, "children": []})
+
+for i, k in dict.items():
+    print(i, k)
 
 TreeLayerControl(overlay_tree=dict).add_to(map_obj)
 # Сохраняем карту в HTML файл
