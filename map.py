@@ -1,45 +1,34 @@
-from idlelib.replace import replace
-
 import folium
+from xml_data_parser import (
+    locations, ru_locations, scale_coordinates
+)
 from folium import TileLayer
 from folium.plugins.treelayercontrol import TreeLayerControl
 from folium.features import Marker
 from folium.plugins import MousePosition
-import xml.etree.ElementTree as ET
-import re
+from folium.plugins import TagFilterButton
 
-root = ET.parse('XML game data/settlements.xml').getroot()
-root_ru = ET.parse('XML game data/std_settlements_xml_rus.xml').getroot()
-lang = 'ru'  # Выбираем язык для данных 'ru' для русского, любое другое значение для анг
 
-# Границы карты
+# Границы и координаты для корректировки
 map_min_lat = -112
 map_max_lat = 0
 map_min_lon = 0
 map_max_lon = 152
-
-# Границы координат для корректировки
 data_min_lat = 62.205 + 25
 data_max_lat = 610.56 + 20
 data_min_lon = 76.51701 - 15
 data_max_lon = 782.63 + 15
 
-def scale_coordinates(lat, lon):
-    # Масштабирование широты
-    scaled_lat = map_min_lat + (lat - data_min_lat) * (map_max_lat - map_min_lat) / (data_max_lat - data_min_lat)
-    # Масштабирование долготы
-    scaled_lon = map_min_lon + (lon - data_min_lon) * (map_max_lon - map_min_lon) / (data_max_lon - data_min_lon)
-    return [scaled_lat, scaled_lon]
 
-# Создаем карту с пустым фоном
+# Создаем пустую карту
 map_obj = folium.Map(location=[map_min_lat/2, map_max_lon/2], zoom_start=3, tiles=None, crs='Simple',
                      min_lon=map_min_lon, max_lon=map_max_lon, min_lat=map_min_lat, max_lat=map_max_lat,
-                     height="100%", width="100%", max_bounds=True)
+                     height="100%", width="100%", max_bounds=True, minZoom=3, maxZoom=7, control=False)
 
+# Добавляем на карту слой
 TileLayer(
-    tiles='tileset/{z}/{x}/{y}.png',  # URL или путь к вашему фоновому изображению
-    attr='M&B Map tile set',  # Атрибуция (может быть пустой для вашего проекта)
-    name='M&B Map',
+    tiles='tileset/{z}/{x}/{y}.png',
+    attr='M&B Map tile set',
     overlay=False,
     control=False,
     show=True,
@@ -48,71 +37,18 @@ TileLayer(
     no_wrap=True,
 ).add_to(map_obj)
 
+Map_data = {"label" : "Кальрадия",
+        "children": []
+        }
+
+factions_group = folium.FeatureGroup(name='Фракции', show=True).add_to(map_obj)
 town_group = folium.FeatureGroup(name='Города', show=True).add_to(map_obj)
 castle_group = folium.FeatureGroup(name='Замки', show=False).add_to(map_obj)
 village_group = folium.FeatureGroup(name='Деревни', show=False).add_to(map_obj)
 other_group = folium.FeatureGroup(name='Другое', show=False).add_to(map_obj)
-folium.LayerControl().add_to(map_obj)
-
-Map_data = {"label" : "Кальрадия",
-        "select_all_checkbox": True,
-        "children": []
-        }
-factions = []
-castles = []
-towns = []
-villages = []
-
-for settlements in root:
-    settlement_id = settlements.attrib['id']
-    settlement_location = [settlements.attrib['posX'], settlements.attrib['posY']]
-    settlement_name = settlements.attrib['name']
-    if settlements[0][0].tag == 'Village':
-        village_bound = settlements[0][0].attrib['bound'].replace('Settlement.', '')
-        villages.append({"id" : settlement_id, "label": settlement_name, "type": "village", "location": settlement_location, "bound": village_bound})
-    elif settlements[0][0].tag == 'Town':
-        faction_name = settlements.attrib['owner'].split('.')[1].split('_', 1)[1].rsplit('_', 1)[0]
-        faction_data = {'label': faction_name, 'color': '', 'children': []}
-        if faction_name not in factions and factions.count(faction_data) < 1: factions.append(faction_data)
-        if settlements[0][0].attrib['is_castle'] == 'true':
-            castle_data = {"id": settlement_id, "label": settlement_name, "type": "castle",
-                           "location": settlement_location, "owner": faction_name, "children": []}
-            castles.append(castle_data)
-        else:
-            town_data = {"id": settlement_id, "label": settlement_name, "type": "town",
-                            "location": settlement_location, "owner": faction_name, "children": []}
-            towns.append(town_data)
 
 
-towns.extend(castles)
-for i in range(len(towns)):
-    for j in range(len(villages)):
-        if villages[j]['bound'] == towns[i]['id']:
-            towns[i]['children'].append(villages[j])
-    towns[i].update({"select_all_checkbox": True, "collapsed": True, "selectAll": False})
-for i in range(len(factions)):
-    for j in range(len(towns)):
-        if towns[j]['owner'] == factions[i]['label']:
-            factions[i]['children'].append(towns[j])
-    factions[i].update({"select_all_checkbox": True, "collapsed": True, "selectAll": False})
-
-
-for i in factions:
-    print(i)
-
-Map_data['children'] = factions
-
-
-#print(Map_data)
-
-'''for i in castles:
-    print(i)
-print(len(castles))'''
-
-# Создание словаря
-
-
-
+#TagFilterButton(filter_list).add_to(map_obj)
 TreeLayerControl(overlay_tree=Map_data).add_to(map_obj)
 # Сохраняем карту в HTML файл
 map_obj.save('docs/map.html')
