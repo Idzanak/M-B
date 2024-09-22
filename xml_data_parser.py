@@ -24,6 +24,62 @@ def scale_coordinates(lat, lon):
     scaled_lon = map_min_lon + (lon - data_min_lon) * (map_max_lon - map_min_lon) / (data_max_lon - data_min_lon)
     return [scaled_lat, scaled_lon]
 
+def factions_data(data):
+    if data == 'empire_north':
+        label_en = 'North Empire'
+        label = 'Северная Империя'
+        color = '#702b86'
+        capital = 'Диатма'
+        clans = ['Аргор', 'Ватацес', 'Долентос', 'Импесторес', 'Неретцес', 'Остик', 'Серапиды', 'Фалентес', 'Хонис']
+        leader = 'Сенатор Лукон'
+    elif data == 'empire_west':
+        label = 'Западная Империя'
+        color = '#591645'
+        capital = 'Джалмарис'
+        clans = ['Варр', 'Дионик', 'Комен', 'Корений', 'Лоналион', 'Манеолис', 'Палладий', 'Сорад', 'Элахес']
+        leader = 'Император Гарий'
+    elif data == 'empire_south':
+        label = 'Южная Империя'
+        color = '#351d7f'
+        capital = 'Ликарон'
+        clans = ['Авлон', 'Ветранис', 'Визарт', 'Леонипардес', 'Местрикар', 'Петер', 'Приник', 'Хонгер', 'Юлий']
+        leader = 'Императрица Реджия'
+    elif data == 'sturgia':
+        label = 'Стургия'
+        color = '#2a4b78'
+        capital = 'Бальгард'
+        clans = ['Вагировинг', 'Вежовинг', 'Гундаровинг', 'Изайровинг', 'Косторовинг', 'Куловинг', 'Ормидовинг', 'Тогаровинг', 'Убровин']
+        leader = ''
+    elif data == 'aserai':
+        label = 'Асераи'
+        color = '#B57A1E'
+        capital = 'Кайяз'
+        clans = ['Бану Арбас', 'Бану Атиж', 'Бану Караз', 'Бану Килд', 'Бану Руваид', 'Бану Сармал', 'Бану Сарран', 'Бану Хаббаб', 'Бану Халян']
+        leader = 'Султан Унгид'
+    elif data == 'vlandia':
+        label = 'Вландия'
+        color = '#8D291A'
+        capital = 'Галенд'
+        clans = ['де Арроманк', 'де Валант', 'де Гюнрик', 'де Желинд', 'де Кортэн', 'де Мерок', 'де Моларн', 'де Ротад', 'де Тир', 'де Фолькун', 'де Фортес']
+        leader = 'Король Дертерт'
+    elif data == 'battania':
+        label = 'Баттания'
+        color = '#284E19'
+        capital = 'Марунат'
+        clans = ['фен Айнгаль', 'фен Граффендок', 'фен Гьяль', 'фен Дернгиль', 'фен Каэрнахт', 'фен Моркар', 'фен Пенраик', 'фен Увэйн']
+        leader = 'Король Каладог'
+    elif data == 'khuzait':
+        label = 'Хузаиты'
+        color = '#429081'
+        capital = 'Макеб'
+        clans = ['Аркиты', 'Болтейт', 'Кергиты', 'Кольтит', 'Обурит', 'Тигрит', 'Урханаит', 'Харфит', 'Янсерит']
+        leader = 'Хан Мончуг'
+    else: return
+    output_ru = {'id': data, 'label': label, 'color': color, 'capital': capital, 'clans': clans, 'leader': leader}
+    if output_ru not in ru_factions: ru_factions.append(output_ru)
+    return output_ru
+
+
 def remove_braces_text(text):
     pattern = r"\{.*?\}"
     result = re.sub(pattern, "", text)
@@ -53,12 +109,14 @@ def text_translate(data, language='ru'):
 
 
 #Создание списка всех локаций
-locations=[]
+ru_factions = []
+en_factions = []
+locations = []
 ru_locations = []
 for settlements in root:
     location = {'id': settlements.attrib['id'],
                 'coords': [scale_coordinates(float(settlements.attrib['posY']), float(settlements.attrib['posX']))],
-                'name': settlements.attrib['name'],
+                'label': settlements.attrib['name'],
                 'type': settlements[0][0].tag}
     if 'text' in settlements.attrib: location['text'] = settlements.attrib['text']
     if settlements.findall("./Components/Town"):
@@ -67,6 +125,7 @@ for settlements in root:
         location['is_castle'] = settlements[0][0].attrib['is_castle']
         location['clan'] = settlements.attrib['owner'].replace('Faction.','')
         location['faction'] = settlements.attrib['owner'].replace('Faction.clan_','').rsplit('_', 1)[0]
+        location['faction'] = factions_data(location['faction'])
         location['level'] = settlements[0][0].attrib['level']
         location['prosperity'] = settlements[0][0].attrib['prosperity']
     if settlements.findall("./Components/Village"):
@@ -74,16 +133,30 @@ for settlements in root:
         location['village_type'] = settlements[0][0].attrib['village_type']
         location['hearth'] = settlements[0][0].attrib['hearth']
     locations.append(location)
+
     ru_locations.append(location.copy())
     del location
+
 
 for i in range(len(locations)): # Перевод русского списка и
     if 'text' in locations[i]:
         ru_locations[i]['text'] = text_translate(locations[i]['text'])
         locations[i]['text'] = text_translate(locations[i]['text'],'en')
-    if 'name' in locations[i]:
-        ru_locations[i]['name'] = text_translate(locations[i]['name'])
-        locations[i]['name'] = text_translate(locations[i]['name'], 'en')
+    if 'label' in locations[i]:
+        ru_locations[i]['label'] = text_translate(locations[i]['label'])
+        locations[i]['label'] = text_translate(locations[i]['label'], 'en')
+
+
+for i in ru_locations: #Добавление списка словарей зависимых деревень городам и замкам
+    if 'Town' in i['type'] or 'Castle' in i['type']:
+        bounds = [d for d in ru_locations if d.get('bound') == i['id']]
+        i['children'] = bounds
+
+
+print_tree([d for d in ru_locations if d.get('type') == 'Castle'])
+
+
+
 
 towns = [d for d in ru_locations if d.get('type')=='Town']
 villages = [d for d in ru_locations if d.get('type')=='Village']
